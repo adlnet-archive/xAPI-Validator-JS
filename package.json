@@ -4,14 +4,28 @@
   "main": "./xapiValidator",
   "author": "Zachary Pierce",
   "description": "A validator for Experience API (xAPI) statements",
-  "keywords":["xAPI", "validator", "lrs", "json", "TinCan"],
+  "keywords": [
+    "xAPI",
+    "validator",
+    "lrs",
+    "json",
+    "TinCan"
+  ],
   "license": "MIT",
   "engines": {
     "node": ">=0.6.6"
   },
-  "devDependencies":{
+  "devDependencies": {
+    "browserify": "^13.1.1",
     "chai": "*",
+    "gulp": "^3.9.1",
+    "gulp-connect": "^5.0.0",
+    "gulp-livereload": "^3.8.1",
+    "gulp-sourcemaps": "^2.2.0",
+    "gulp-uglify": "^2.0.0",
     "mocha": "*",
-    "underscore": "*"
+    "underscore": "*",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0"
   }
 }
