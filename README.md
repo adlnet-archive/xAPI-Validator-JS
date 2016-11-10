@@ -1,4 +1,5 @@
 # xAPI Validator
+![Test Passing Travis CI](https://travis-ci.org/elenatorro/xAPI-Validator-JS.svg?branch=master)
 
 A stand-alone Javascript validator for Experience API (xAPI) statements.
 
