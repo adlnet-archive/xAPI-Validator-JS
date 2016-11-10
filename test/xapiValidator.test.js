@@ -1,14 +1,22 @@
+import {_} from 'underscore';
+import {expect} from 'chai';
+import {validateStatement} from '../src/xapiValidator';
+
+var xapiValidator;
+
+xapiValidator = {validateStatement};
+
 describe("xapiValidator", function() {
   describe("#validateStatement", function() {
 
     function reportHasErrorWithTracePrefix(report, prefix, targetLevel) {
-      if (report == null || report == undefined || report.errors == null || report.errors == undefined) {
+      if (report === null || report === undefined || report.errors === null || report.errors === undefined) {
         return false;
       }
       var hasTargetLevel = targetLevel !== null && targetLevel !== undefined;
       return _.any(report.errors, function(err) {
-        var foundPrefix = err.trace.indexOf(prefix) == 0;
-        return hasTargetLevel ? targetLevel == err.level && foundPrefix : foundPrefix;
+        var foundPrefix = err.trace.indexOf(prefix) === 0;
+        return hasTargetLevel ? targetLevel === err.level && foundPrefix : foundPrefix;
       });
     }
 

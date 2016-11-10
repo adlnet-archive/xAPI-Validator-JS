@@ -8,8 +8,6 @@ import {xapiValidationInteractionTypes} from './constants/interaction-types';
 import {xapiGeneral} from './constants/general';
 import {xapiValidationUtils} from './utils/utils';
 
-var xapiValidator;
-
 function makeV1Report(instance, errors) {
   var version;
 
@@ -1146,7 +1144,7 @@ function validateObject(object, trace, errors, isWithinSubStatement) {
           level:   xapiErrorLevels.MUST_VIOLATION
         });
       }
-      validateStatement(object, localTrace, localErrors,  /*isSubStatement*/true);
+      validate(object, localTrace, localErrors,  /*isSubStatement*/true);
       break;
     default:
       localErrors.push({
@@ -1159,7 +1157,7 @@ function validateObject(object, trace, errors, isWithinSubStatement) {
   return localErrors;
 }
 
-function validateStatement(statement, trace, errors, isSubStatement) {
+function validate(statement, trace, errors, isSubStatement) {
   var localErrors, localTrace, statementObjectObjectType, whitelistedProperties;
 
   localErrors = errors || [];
@@ -1219,7 +1217,7 @@ function makeStatementReport(statement) {
   var localErrors;
 
   localErrors = [];
-  validateStatement(statement, properties.STATEMENT, localErrors,  /*isRequired*/false);
+  validate(statement, properties.STATEMENT, localErrors,  /*isRequired*/false);
 
   return makeV1Report(statement, localErrors);
 }
@@ -1280,9 +1278,4 @@ function dateIncludesZoneInformation(matched) {
           (matched[dateFormatRegexPositions.RELATIVE_TIME] && matched[dateFormatRegexPositions.TIME_ZONE_HOUR]);
 }
 
-xapiValidator = {
-  validateStatement: validateAmbiguousTypeStatement
-};
-
-export default xapiValidator;
-window.xapiValidator = xapiValidator; //FIXME
+export var validateStatement = validateAmbiguousTypeStatement;
