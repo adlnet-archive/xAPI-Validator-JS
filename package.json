@@ -4,6 +4,10 @@
   "main": "./xapiValidator",
   "author": "Zachary Pierce",
   "description": "A validator for Experience API (xAPI) statements",
+  "scripts": {
+    "lint": "eslint src/xAPI-validator.js",
+    "test": "mocha --compilers js:babel-core/register"
+  },
   "keywords": [
     "xAPI",
     "validator",
