@@ -105,6 +105,17 @@
     properties.TIMESTAMP,
     properties.ATTACHMENTS,
     properties.OBJECT_TYPE
+  ],
+  EXTENSIONS: [
+    properties.REGISTRATION,
+    properties.INSTRUCTOR,
+    properties.TEAM,
+    properties.CONTEXT_ACTIVITIES,
+    properties.REVISION,
+    properties.PLATFORM,
+    properties.LANGUAGE,
+    properties.STATEMENT,
+    properties.EXTENSIONS
   ]
 });
 

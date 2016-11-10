@@ -1,12 +1,12 @@
 'use strict';
 
-import {properties, objectTypes, xapiValidationIfiPropertyNames, xApiValidObjectTypes} from '/constants/properties';
-import {xapiWhiteListProperties} from '/constants/whitelists';
-import {xapiErrorLevels, xapiValidationErrors} from '/constants/errors';
-import {xapiValidationRegex, dateFormatRegexPositions} from '/constants/regex';
-import {xapiValidationInteractionTypes} from '/constants/interaction-types';
-import {xapiGeneral} from '/constants/general';
-import {xapiValidationUtils} from '/utils/utils';
+import {properties, objectTypes, xapiValidationIfiPropertyNames, xApiValidObjectTypes} from './constants/properties';
+import {xapiWhiteListProperties} from './constants/whitelists';
+import {xapiErrorLevels, xapiValidationErrors} from './constants/errors';
+import {xapiValidationRegex, dateFormatRegexPositions} from './constants/regex';
+import {xapiValidationInteractionTypes} from './constants/interaction-types';
+import {xapiGeneral} from './constants/general';
+import {xapiValidationUtils} from './utils/utils';
 
 var xapiValidator;
 
@@ -14,7 +14,7 @@ function makeV1Report(instance, errors) {
   var version;
 
   instance = instance || null;
-  errors   = errors || null;
+  errors   = errors   || null;
   version  = xapiGeneral.FIRST_REPORT_VERSTION;
   return {instance, errors, version};
 }
@@ -165,13 +165,13 @@ function validateIFIProperties(target, trace, errors) {
     if (!xapiValidationUtils.isString(target.mbox)) {
       localErrors.push({
         trace: xapiValidationUtils.localTraceToString(localTrace, properties.MBOX),
-        message: xapiValidationErrors.MUST_BE_MBOX_URI,
+        message: xapiValidationErrors.IFI_MUST_BE_MBOX_URI,
         level: xapiErrorLevels.MUST_VIOLATION
       });
     } else if (!xapiValidationRegex.MAILTO_URI.test(target.mbox)) {
       localErrors.push({
         trace:   xapiValidationUtils.localTraceToString(localTrace, properties.MBOX),
-        message: xapiValidationErrors.MUST_BE_VALID_MBOX_FORMAT,
+        message: xapiValidationErrors.IFI_MUST_BE_VALID_MBOX_FORMAT,
         level:   xapiErrorLevels.MUST_VIOLATION
       });
     }
@@ -191,23 +191,15 @@ function validateIFIProperties(target, trace, errors) {
 }
 
 function getIFIs(target) {
-  var ifis, propertiesLength, i, propName, propValue;
+  var ifis;
 
-  ifis = [];
-  propertiesLength = xapiValidationIfiPropertyNames.length;
+  if (target === null || target === undefined) {return [];}
 
-  if (target === null || target === undefined)  {
-    return ifis;
-  }
-
-  for (i = 0; i < propertiesLength; i += 1) {
-    propName  = xapiValidationIfiPropertyNames[i];
-    propValue = target[propName];
-
-    if (propValue !== undefined && propValue !== null) {
-      ifis.push({key: propName, value: propValue});
+  ifis = xapiValidationIfiPropertyNames.filter((name) => {
+    if (target[name] !== undefined && target[name] !== null) {
+      return {key: name, value: target[name]};
     }
-  }
+  });
 
   return ifis;
 }
@@ -235,268 +227,259 @@ function validateExtensions(extensions, trace, errors) {
   return localErrors;
 }
 
-  function validateLanguageMap(languageMap, trace, errors) {
-    var localErrors, localTrace, propName, mappedValue;
+function validateLanguageMap(languageMap, trace, errors) {
+  var localErrors, localTrace, propName, mappedValue;
 
-    localErrors = errors || [];
-    localTrace  = trace  || properties.LANGUAGE_MAP;
+  localErrors = errors || [];
+  localTrace  = trace  || properties.LANGUAGE_MAP;
 
-    if (languageMap === undefined) {return localErrors;}
+  if (languageMap === undefined) {return localErrors;}
 
-    if (!xapiValidationUtils.isNonNullMapObject(languageMap)) {
-      localErrors.push({
-        trace:   xapiValidationUtils.addPropToTrace(localTrace),
-        message: xapiValidationErrors.LANGUAGE_MAPS_MUST_NOT_BE_NULL,
-        level:   xapiErrorLevels.MUST_VIOLATION
-      });
-
-      return localErrors;
-    }
-
-    for (propName in languageMap) {
-      if (languageMap.hasOwnProperty(propName)) {
-        if (!xapiValidationUtils.isValidLanguageTag(propName)) {
-          localErrors.push({
-            trace:   xapiValidationUtils.addPropToTrace(localTrace, propName),
-            message: `${propName} ${xapiValidationErrors.LANGUAGE_MAP_KEY_INVALID}`,
-            level:   xapiErrorLevels.MUST_VIOLATION
-          });
-        }
-
-        mappedValue = languageMap[propName];
-
-        if (mappedValue === null || mappedValue === undefined || !xapiValidationUtils.isString(mappedValue)) {
-          localErrors.push({
-            trace:   xapiValidationUtils.addLookupToTrace(localTrace, propName),
-            message: `${propName} ${xapiValidationErrors.LANGUAGE_MAP_KEY_MUST_BE_STRING}`,
-            level:   xapiErrorLevels.MUST_VIOLATION
-          });
-        }
-      }
-    }
+  if (!xapiValidationUtils.isNonNullMapObject(languageMap)) {
+    localErrors.push({
+      trace:   xapiValidationUtils.addPropToTrace(localTrace),
+      message: xapiValidationErrors.LANGUAGE_MAPS_MUST_NOT_BE_NULL,
+      level:   xapiErrorLevels.MUST_VIOLATION
+    });
 
     return localErrors;
   }
 
-  function validateVerb(verb, trace, errors) {
-    var localErrors, localTrace;
+  for (propName in languageMap) {
 
-    localErrors = errors || [];
-    localTrace  = trace  || properties.VERB;
+    if (languageMap.hasOwnProperty(propName)) {
+      if (!xapiValidationUtils.isValidLanguageTag(propName)) {
+        localErrors.push({
+          trace:   xapiValidationUtils.addPropToTrace(localTrace, propName),
+          message: `${propName} ${xapiValidationErrors.LANGUAGE_MAP_KEY_INVALID}`,
+          level:   xapiErrorLevels.MUST_VIOLATION
+        });
+      }
 
-    if (verb === undefined) {
-      localErrors.push({
-        trace:   xapiValidationUtils.localTraceToString(localTrace),
-        message: xapiValidationErrors.VERB_MUST_BE_PROVIDED,
-        level:   xapiErrorLevels.MUST_VIOLATION
-      });
+      mappedValue = languageMap[propName];
 
-      return localErrors;
+      if (mappedValue === null || mappedValue === undefined || !xapiValidationUtils.isString(mappedValue)) {
+        localErrors.push({
+          trace:   xapiValidationUtils.addLookupToTrace(localTrace, propName),
+          message: `${propName} ${xapiValidationErrors.LANGUAGE_MAP_KEY_MUST_BE_STRING}`,
+          level:   xapiErrorLevels.MUST_VIOLATION
+        });
+      }
     }
+  }
 
-    if (!xapiValidationUtils.isNonNullMapObject(verb)) {
+  return localErrors;
+}
+
+function validateVerb(verb, trace, errors) {
+  var localErrors, localTrace;
+
+  localErrors = errors || [];
+  localTrace  = trace  || properties.VERB;
+
+  if (verb === undefined) {
+    localErrors.push({
+      trace:   xapiValidationUtils.localTraceToString(localTrace),
+      message: xapiValidationErrors.VERB_MUST_BE_PROVIDED,
+      level:   xapiErrorLevels.MUST_VIOLATION
+    });
+
+    return localErrors;
+  }
+
+  if (!xapiValidationUtils.isNonNullMapObject(verb)) {
+    localErrors.push({
+      trace:   xapiValidationUtils.localTraceToString(localTrace),
+      message: xapiValidationErrors.VERB_MUST_NOT_BE_NULL,
+      level:   xapiErrorLevels.MUST_VIOLATION
+    });
+
+    return localErrors;
+  }
+
+  validatePropertyIsUri(verb, properties.ID, localTrace, localErrors,  /*isRequired*/true);
+
+  if (verb.display === undefined) {
+    localErrors.push({
+      trace:   xapiValidationUtils.addPropToTrace(localTrace, properties.DISPLAY),
+      message: xapiValidationErrors.DISPLAY_SHOULD_BE_PROVIDED,
+      level:   xapiErrorLevels.SHOULD_VIOLATION
+    });
+  } else {
+    validateLanguageMap(verb.display, xapiValidationUtils.addPropToTrace(localTrace, properties.DISPLAY), localErrors);
+  }
+
+  validateAbsenceOfNonWhitelistedProperties(verb, xapiWhiteListProperties.URI, localTrace, localErrors);
+
+  return localErrors;
+}
+
+function validateInteractionComponentArray(components, interactionType, allowedInteractionTypes, trace, errors) {
+  var localErrors, localTrace, isAllowedComponentType, ids, perComponentTrace;
+
+  localErrors            = errors || [];
+  localTrace             = trace  || properties.INTERACTION_COMPONENTS;
+  isAllowedComponentType = allowedInteractionTypes.indexOf(interactionType) !== xapiGeneral.NO_INDEX_FOUND;
+  ids                    = [];
+
+  if (isAllowedComponentType && components !== undefined) {
+    if (components === null || !xapiValidationUtils.isArray(components)) {
       localErrors.push({
-        trace:   xapiValidationUtils.localTraceToString(localTrace),
-        message: xapiValidationErrors.VERB_MUST_NOT_BE_NULL,
-        level:   xapiErrorLevels.MUST_VIOLATION
-      });
-
-      return localErrors;
-    }
-
-    validatePropertyIsUri(verb, properties.ID, localTrace, localErrors,  /*isRequired*/true);
-
-    if (verb.display === undefined) {
-      localErrors.push({
-        trace:   xapiValidationUtils.addPropToTrace(localTrace, properties.DISPLAY),
-        message: xapiValidationErrors.DISPLAY_SHOULD_BE_PROVIDED,
+        trace:   localTrace,
+        message: xapiValidationErrors.INTERACTION_COMPONENT_SHOULD_BE_ARRAY,
         level:   xapiErrorLevels.SHOULD_VIOLATION
       });
     } else {
-      validateLanguageMap(verb.display, xapiValidationUtils.addPropToTrace(localTrace, properties.DISPLAY), localErrors);
-    }
+      components.forEach((interactionComponent, i) => {
+        perComponentTrace = xapiValidationUtils.addLookupToTrace(localTrace, i);
 
-    validateAbsenceOfNonWhitelistedProperties(verb, xapiWhiteListProperties.URI, localTrace, localErrors);
+        if (!xapiValidationUtils.isNonNullMapObject(interactionComponent)) {
+          localErrors.push({
+            trace:   perComponentTrace,
+            message: xapiValidationErrors.INTERACTION_COMPONENT_MUST_NOT_BE_NULL,
+            level:   xapiErrorLevels.MUST_VIOLATION
+          });
+        } else {
+          validatePropertyIsString(interactionComponent, properties.ID, perComponentTrace, localErrors, /*isRequired*/true, xapiErrorLevels.MUST_VIOLATION);
+          if (ids.indexOf(interactionComponent.id) !== xapiGeneral.NO_INDEX_FOUND) {
+            localErrors.push({
+              trace:   xapiValidationUtils.addPropToTrace(perComponentTrace, properties.ID),
+              message: xapiValidationErrors.ID_MUST_BE_UNIQUE,
+              level:   xapiErrorLevels.MUST_VIOLATION
+            });
+          } else {
+            ids.push(interactionComponent.id);
+          }
+
+          if (interactionComponent.id && xapiValidationRegex.CONTAINS_WHITESPACE.test(interactionComponent.id)) {
+            localErrors.push({
+              trace:   xapiValidationUtils.addPropToTrace(perComponentTrace, properties.ID),
+              message: xapiValidationErrors.ID_SHOULD_NOT_CONTAIN_WHITESPACES,
+              level:   xapiErrorLevels.SHOULD_VIOLATION
+            });
+          }
+
+          validateLanguageMap(interactionComponent.description, xapiValidationUtils.addPropToTrace(perComponentTrace, properties.DESCRIPTION), localErrors);
+          validateAbsenceOfNonWhitelistedProperties(interactionComponent, xapiWhiteListProperties.COMPONENT_ARRAY, perComponentTrace, localErrors);
+        }
+      });
+
+    }
+  } else if (interactionType && components) {
+    localErrors.push({
+      trace:   localTrace,
+      message: `${xapiValidationErrors.INTERACTION_TYPE_MUST_BE_VALID} ${interactionType}`,
+      level:   xapiErrorLevels.SHOULD_VIOLATION
+    });
+  }
+
+  return localErrors;
+}
+
+function validateActivityDefintion(definition, trace, errors) {
+  var localErrors, localTrace, correctResponsesPatternTrace;
+
+  localErrors                  = errors || [];
+  localTrace                   = trace  || properties.DEFINITION;
+  correctResponsesPatternTrace = xapiValidationUtils.addPropToTrace(localTrace, properties.CORRECT_RESPONSES_PATTERN);
+
+  if (!xapiValidationUtils.isNonNullMapObject(definition)) {
+    localErrors.push({
+      trace:   xapiValidationUtils.addPropToTrace(localTrace),
+      message: xapiValidationErrors.DEFINITIONS_MUST_BE_OBJECTS,
+      level:   xapiErrorLevels.MUST_VIOLATION
+    });
 
     return localErrors;
   }
 
-  function validateInteractionComponentArray(components, interactionType, allowedInteractionTypes, trace, errors) {
-    var localErrors, localTrace, isAllowedComponentType, ids, interactionComponent, componentsLength, perComponentTrace, i;
+  validateLanguageMap(definition.name, xapiValidationUtils.addPropToTrace(localTrace, properties.NAME), localErrors);
+  validateLanguageMap(definition.description, xapiValidationUtils.addPropToTrace(localTrace, properties.DESCRIPTION), localErrors);
 
-    localErrors            = errors || [];
-    localTrace             = trace  || properties.INTERACTION_COMPONENTS;
-    isAllowedComponentType = allowedInteractionTypes.indexOf(interactionType) !== xapiGeneral.NO_INDEX_FOUND;
-    ids                    = [];
+  validatePropertyIsUri(definition, properties.TYPE, localTrace, localErrors,  /*isRequired*/false);
+  validatePropertyIsUrl(definition, properties.MORE_INFO, localTrace, localErrors,  /*isRequired*/false);
+  validateExtensions(definition.extensions, xapiValidationUtils.addPropToTrace(localTrace, properties.EXTENSIONS), localErrors);
 
-
-    if (isAllowedComponentType && components !== undefined) {
-      if (components === null || !xapiValidationUtils.isArray(components)) {
-        localErrors.push({
-          trace:   localTrace,
-          message: xapiValidationErrors.INTERACTION_COMPONENT_SHOULD_BE_ARRAY,
-          level:   xapiErrorLevels.SHOULD_VIOLATION
-        });
-
-      } else {
-        componentsLength = components.length;
-
-        for (i = 0; i < componentsLength; i += 1) {
-          interactionComponent = components[i];
-          perComponentTrace    = xapiValidationUtils.addLookupToTrace(localTrace, i);
-
-          if (!xapiValidationUtils.isNonNullMapObject(interactionComponent)) {
-            localErrors.push({
-              trace:   perComponentTrace,
-              message: xapiValidationErrors.INTERACTION_COMPONENT_MUST_NOT_BE_NULL,
-              level:   xapiErrorLevels.MUST_VIOLATION
-            });
-          } else {
-            validatePropertyIsString(interactionComponent, properties.ID, perComponentTrace, localErrors, /*isRequired*/true, xapiErrorLevels.MUST_VIOLATION);
-
-            if (ids.indexOf(interactionComponent.id) !== xapiGeneral.NO_INDEX_FOUND) {
-              localErrors.push({
-                trace:   xapiValidationUtils.addPropToTrace(perComponentTrace, properties.ID),
-                message: xapiValidationErrors.ID_MUST_BE_UNIQUE,
-                level:   xapiErrorLevels.MUST_VIOLATION
-              });
-            } else {
-              ids.push(interactionComponent.id);
-            }
-
-            if (interactionComponent.id && xapiValidationRegex.CONTAINS_WHITESPACE.test(interactionComponent.id)) {
-              localErrors.push({
-                trace:   xapiValidationUtils.addPropToTrace(perComponentTrace, properties.ID),
-                message: xapiValidationErrors.ID_SHOULD_NOT_CONTAIN_WHITESPACES,
-                level:   xapiErrorLevels.SHOULD_VIOLATION
-              });
-            }
-
-            validateLanguageMap(interactionComponent.description, xapiValidationUtils.addPropToTrace(perComponentTrace, properties.DESCRIPTION), localErrors);
-            validateAbsenceOfNonWhitelistedProperties(interactionComponent, xapiWhiteListProperties.COMPONENT_ARRAY, perComponentTrace, localErrors);
-          }
-        }
-      }
-
-    } else if (interactionType && components) {
+  if (definition.interactionType !== undefined) {
+    if (definition.type !== xapiGeneral.INTERACTION_DEFINITION_TYPE) {
       localErrors.push({
-        trace:   localTrace,
-        message: `${xapiValidationErrors.INTERACTION_TYPE_MUST_BE_VALID} ${interactionType}`,
+        trace:   xapiValidationUtils.localTraceToString(localTrace, properties.TYPE),
+        message: `${xapiValidationErrors.INTERACTION_ACTIVITY_SHOULD_HAVE} "${xapiGeneral.INTERACTION_DEFINITION_TYPE}"`,
         level:   xapiErrorLevels.SHOULD_VIOLATION
       });
     }
 
-    return localErrors;
-  }
-
-  function validateActivityDefintion(definition, trace, errors) {
-    var localErrors, localTrace, correctResponsesPatternTrace, correctResponsesPatternLength, crpItem, i;
-
-    localErrors = errors || [];
-    localTrace = trace || properties.DEFINITION;
-    correctResponsesPatternTrace = xapiValidationUtils.addPropToTrace(localTrace, properties.CORRECT_RESPONSES_PATTERN);
-
-    if (!xapiValidationUtils.isNonNullMapObject(definition)) {
+    if (xapiValidationInteractionTypes.indexOf(definition.interactionType) === xapiGeneral.NO_INDEX_FOUND) {
       localErrors.push({
-        trace:   xapiValidationUtils.addPropToTrace(localTrace),
-        message: xapiValidationErrors.DEFINITIONS_MUST_BE_OBJECTS,
+        trace:   xapiValidationUtils.localTraceToString(localTrace, properties.INTERACTION_TYPE),
+        message: xapiValidationErrors.INTERACTION_TYPE_MUST_BE_CMI,
         level:   xapiErrorLevels.MUST_VIOLATION
       });
-
-      return localErrors;
     }
+  }
 
-    validateLanguageMap(definition.name, xapiValidationUtils.addPropToTrace(localTrace, properties.NAME), localErrors);
-    validateLanguageMap(definition.description, xapiValidationUtils.addPropToTrace(localTrace, properties.DESCRIPTION), localErrors);
-
-    validatePropertyIsUri(definition, properties.TYPE, localTrace, localErrors,  /*isRequired*/false);
-    validatePropertyIsUrl(definition, properties.MORE_INFO, localTrace, localErrors,  /*isRequired*/false);
-    validateExtensions(definition.extensions, xapiValidationUtils.addPropToTrace(localTrace, properties.EXTENSIONS), localErrors);
-
-    if (definition.interactionType !== undefined) {
-      if (definition.type !== xapiGeneral.INTERACTION_DEFINITION_TYPE) {
-        localErrors.push({
-          trace:   xapiValidationUtils.localTraceToString(localTrace, properties.TYPE),
-          message: `${xapiValidationErrors.INTERACTION_ACTIVITY_SHOULD_HAVE} "${xapiGeneral.INTERACTION_DEFINITION_TYPE}"`,
-          level:   xapiErrorLevels.SHOULD_VIOLATION
-        });
-      }
-
-      if (xapiValidationInteractionTypes.indexOf(definition.interactionType) === xapiGeneral.NO_INDEX_FOUND) {
-        localErrors.push({
-          trace:   xapiValidationUtils.localTraceToString(localTrace, properties.INTERACTION_TYPE),
-          message: xapiValidationErrors.INTERACTION_TYPE_MUST_BE_CMI,
-          level:   xapiErrorLevels.MUST_VIOLATION
-        });
-      }
-    }
-
-    if (definition.correctResponsesPattern !== undefined) {
-      if (!xapiValidationUtils.isArray(definition.correctResponsesPattern)) {
-        localErrors.push({
-          trace:   correctResponsesPatternTrace,
-          message: xapiValidationErrors.CORRECT_RESPONSES_PATTERN_MUST_BE_ARRAY,
-          level:   xapiErrorLevels.MUST_VIOLATION
-        });
-      } else {
-        correctResponsesPatternLength = definition.correctResponsesPattern.length;
-
-        for (i = 0; i < correctResponsesPatternLength; i += 1) {
-          crpItem = definition.correctResponsesPattern[i];
-
-          if (crpItem === null || crpItem === undefined || !xapiValidationUtils.isString(crpItem)) {
-            localErrors.push({
-              trace:   xapiValidationUtils.addLookupToTrace(correctResponsesPatternTrace, i),
-              message: xapiValidationErrors.CORRECT_RESPONSES_PATTERN_MUST_BE_STRINGS,
-              level:   xapiErrorLevels.MUST_VIOLATION
-            });
-          }
+  if (definition.correctResponsesPattern !== undefined) {
+    if (!xapiValidationUtils.isArray(definition.correctResponsesPattern)) {
+      localErrors.push({
+        trace:   correctResponsesPatternTrace,
+        message: xapiValidationErrors.CORRECT_RESPONSES_PATTERN_MUST_BE_ARRAY,
+        level:   xapiErrorLevels.MUST_VIOLATION
+      });
+    } else {
+      definition.correctResponsesPattern.forEach((response, i) => {
+        if (response === null || response === undefined || !xapiValidationUtils.isString(response)) {
+          localErrors.push({
+            trace:   xapiValidationUtils.addLookupToTrace(correctResponsesPatternTrace, i),
+            message: xapiValidationErrors.CORRECT_RESPONSES_PATTERN_MUST_BE_STRINGS,
+            level:   xapiErrorLevels.MUST_VIOLATION
+          });
         }
-      }
+      });
     }
+  }
 
-    validateInteractionComponentArray(
-      definition.choices,
-      definition.interactionType,
-      [properties.CHOICE, properties.SEQUENCING],
-      xapiValidationUtils.addPropToTrace(localTrace, properties.CHOICES),
-      localErrors
-    );
+  validateInteractionComponentArray(
+    definition.choices,
+    definition.interactionType,
+    [properties.CHOICE, properties.SEQUENCING],
+    xapiValidationUtils.addPropToTrace(localTrace, properties.CHOICES),
+    localErrors
+  );
 
-    validateInteractionComponentArray(
-      definition.scale,
-      definition.interactionType,
-      [properties.LIKERT],
-      xapiValidationUtils.addPropToTrace(localTrace, properties.SCALE),
-      localErrors
-    );
+  validateInteractionComponentArray(
+    definition.scale,
+    definition.interactionType,
+    [properties.LIKERT],
+    xapiValidationUtils.addPropToTrace(localTrace, properties.SCALE),
+    localErrors
+  );
 
-    validateInteractionComponentArray(
-      definition.source,
-      definition.interactionType,
-      [properties.MATCHING],
-      xapiValidationUtils.addPropToTrace(localTrace, properties.SOURCE),
-      localErrors
-    );
+  validateInteractionComponentArray(
+    definition.source,
+    definition.interactionType,
+    [properties.MATCHING],
+    xapiValidationUtils.addPropToTrace(localTrace, properties.SOURCE),
+    localErrors
+  );
 
-    validateInteractionComponentArray(
-      definition.target,
-      definition.interactionType,
-      [properties.MATCHING],
-      xapiValidationUtils.addPropToTrace(localTrace, properties.TARGET),
-      localErrors
-    );
+  validateInteractionComponentArray(
+    definition.target,
+    definition.interactionType,
+    [properties.MATCHING],
+    xapiValidationUtils.addPropToTrace(localTrace, properties.TARGET),
+    localErrors
+  );
 
-    validateInteractionComponentArray(
-      definition.steps,
-      definition.interactionType,
-      [properties.PERFORMANCE],
-      xapiValidationUtils.addPropToTrace(localTrace, properties.STEPS),
-      localErrors
-    );
+  validateInteractionComponentArray(
+    definition.steps,
+    definition.interactionType,
+    [properties.PERFORMANCE],
+    xapiValidationUtils.addPropToTrace(localTrace, properties.STEPS),
+    localErrors
+  );
 
-    validateAbsenceOfNonWhitelistedProperties(definition, xapiWhiteListProperties.ACTIVITY_DEFINITION, localTrace, localErrors);
-    return localErrors;
+  validateAbsenceOfNonWhitelistedProperties(definition, xapiWhiteListProperties.ACTIVITY_DEFINITION, localTrace, localErrors);
+  return localErrors;
 }
 
 function validateActivity(activity, trace, errors) {
@@ -784,7 +767,7 @@ function validateAttachmentObject(attachment, trace, errors) {
 }
 
 function validateAttachments(attachments, trace, errors) {
-  var localErrors, localTrace, attachmentsLength, i;
+  var localErrors, localTrace;
 
   localErrors = errors || [];
   localTrace  = trace  || properties.ATTACHMENTS;
@@ -801,10 +784,9 @@ function validateAttachments(attachments, trace, errors) {
     return localErrors;
   }
 
-  attachmentsLength = attachments.length;
-  for (i = 0; i < attachmentsLength; i += 1) {
-    validateAttachmentObject(attachments[i], xapiValidationUtils.addLookupToTrace(localTrace, i), localErrors);
-  }
+  attachments.forEach((attachment, i) => {
+    validateAttachmentObject(attachment, xapiValidationUtils.addLookupToTrace(localTrace, i), localErrors);
+  });
 
   return localErrors;
 }
@@ -851,7 +833,7 @@ function validateAgent(agent, trace, errors) {
 }
 
 function validateGroup(group, trace, errors) {
-  var localErrors, localTrace, memberTrace, ifiCount, numMembers, i;
+  var localErrors, localTrace, memberTrace, ifiCount;
 
   localErrors = errors || [];
   localTrace  = trace  || properties.GROUP;
@@ -897,11 +879,9 @@ function validateGroup(group, trace, errors) {
         level:   xapiErrorLevels.MUST_VIOLATION
       });
     } else {
-      numMembers = group.member.length;
-
-      for (i = 0; i < numMembers; i += 1) {
-        validateAgent(group.member[i], xapiValidationUtils.addLookupToTrace(memberTrace, i), localErrors);
-      }
+      group.member.forEach((member, i) => {
+        validateAgent(member, xapiValidationUtils.addLookupToTrace(memberTrace, i), localErrors);
+      });
     }
   }
 
@@ -971,7 +951,7 @@ function validateAuthority(authority, trace, errors) {
 }
 
 function validateContextActivitySubContext(subContext, trace, errors) {
-  var localErrors, localTrace, numActivities, i;
+  var localErrors, localTrace;
 
   localErrors = errors || [];
   localTrace  = trace  || properties.SUB_CONTEXT;
@@ -985,10 +965,9 @@ function validateContextActivitySubContext(subContext, trace, errors) {
       level:   xapiErrorLevels.MUST_VIOLATION
     });
   } else if (xapiValidationUtils.isArray(subContext)) {
-      numActivities = subContext.length;
-      for (i = 0; i < numActivities; i += 1) {
-        validateActivity(subContext[i], xapiValidationUtils.addLookupToTrace(localTrace, i), localErrors);
-      }
+    subContext.forEach((activity, i) => {
+      validateActivity(activity, xapiValidationUtils.addLookupToTrace(localTrace, i), localErrors);
+    });
   } else if (xapiValidationUtils.isObject(subContext)) {
     localErrors.push({
       trace:   xapiValidationUtils.localTraceToString(localTrace),
@@ -1111,22 +1090,7 @@ function validateContext(context, trace, errors, statementObjectObjectType) {
   }
 
   validateExtensions(context.extensions, xapiValidationUtils.addPropToTrace(localTrace, properties.EXTENSIONS), localErrors);
-  validateAbsenceOfNonWhitelistedProperties(
-    context,
-    [
-      properties.REGISTRATION,
-      properties.INSTRUCTOR,
-      properties.TEAM,
-      properties.CONTEXT_ACTIVITIES,
-      properties.REVISION,
-      properties.PLATFORM,
-      properties.LANGUAGE,
-      properties.STATEMENT,
-      properties.EXTENSIONS
-    ],
-    localTrace,
-    localErrors
-  );
+  validateAbsenceOfNonWhitelistedProperties(context, xapiWhiteListProperties.EXTENSIONS,localTrace,localErrors);
 
   return localErrors;
 }
@@ -1158,34 +1122,40 @@ function validateObject(object, trace, errors, isWithinSubStatement) {
   }
 
   validatePropertyIsString(object, properties.OBJECT_TYPE, localTrace, localErrors, /*isRequired*/true, xapiErrorLevels.SHOULD_VIOLATION);
+
   objectType = object.objectType || objectTypes.ACTIVITY;
 
-  // TODO: Switch
-  if (objectType === objectTypes.ACTIVITY) {
-    validateActivity(object, localTrace, localErrors);
-  } else if (objectType === objectTypes.AGENT) {
-    validateAgent(object, localTrace, localErrors);
-  } else if (objectType === objectTypes.GROUP) {
-    validateGroup(object, localTrace, localErrors);
-  } else if (objectType === objectTypes.STATEMENT_REF) {
-    validateStatementRef(object, localTrace, localErrors);
-  } else if (objectType === objectTypes.SUB_STATEMENT) {
-    if (isWithinSubStatement) {
+  switch (objectType) {
+    case objectTypes.ACTIVITY:
+      validateActivity(object, localTrace, localErrors);
+      break;
+    case objectTypes.AGENT:
+      validateAgent(object, localTrace, localErrors);
+      break;
+    case objectTypes.GROUP:
+      validateGroup(object, localTrace, localErrors);
+      break;
+    case objectTypes.STATEMENT_REF:
+      validateStatementRef(object, localTrace, localErrors);
+      break;
+    case objectTypes.SUB_STATEMENT:
+      if (isWithinSubStatement) {
+        localErrors.push({
+          trace:   xapiValidationUtils.localTraceToString(localTrace, properties.OBJECT_TYPE),
+          message: xapiValidationErrors.SUB_STATEMENT_MUST_NOT_CONTAIN_SUB_STATEMENT,
+          level:   xapiErrorLevels.MUST_VIOLATION
+        });
+      }
+      validateStatement(object, localTrace, localErrors,  /*isSubStatement*/true);
+      break;
+    default:
       localErrors.push({
         trace:   xapiValidationUtils.localTraceToString(localTrace, properties.OBJECT_TYPE),
-        message: xapiValidationErrors.SUB_STATEMENT_MUST_NOT_CONTAIN_SUB_STATEMENT,
+        message: `${xapiValidationErrors.OBJECT_TYPE_MUST_BE_VALID_OPTION} ${xApiValidObjectTypes.toString()}`,
         level:   xapiErrorLevels.MUST_VIOLATION
       });
-    }
-
-    validateStatement(object, localTrace, localErrors,  /*isSubStatement*/true);
-  } else {
-    localErrors.push({
-      trace:   xapiValidationUtils.localTraceToString(localTrace, properties.OBJECT_TYPE),
-      message: `${xapiValidationErrors.OBJECT_TYPE_MUST_BE_VALID_OPTION} ${xApiValidObjectTypes.toString()}`,
-      level:   xapiErrorLevels.MUST_VIOLATION
-    });
   }
+
   return localErrors;
 }
 
