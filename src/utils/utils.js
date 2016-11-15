@@ -1,13 +1,11 @@
 'use strict';
 
-import {xapiValidationRegex} from '../constants/regex';
-import {objectTypes} from '../constants/properties';
-
 const
   IS_STRING  = '[object String]',
   IS_ARRAY   = '[object Array]',
   IS_BOOLEAN = '[object Boolean]',
-  IS_NUMBER  = '[object Number]';
+  IS_NUMBER  = '[object Number]'
+;
 
 var toString = Object.prototype.toString;
 var xapiValidationUtils;
@@ -41,9 +39,10 @@ xapiValidationUtils = {
       return this.isDefined(target) && this.isObject(target) && !this.isArray(target);
   },
 
-  isValidLanguageTag(target) {
+  isValidLanguageTag(target, validLanguageRegex) {
     // TODO - use more precise 5646 handling, rather than this simplified BCP 47 regex, which combines RFC 5646 and RFC 4647.
-    return this.isDefined(target) && this.isString(target) && xapiValidationRegex.BCP_47.test(target);
+    // return this.isDefined(target) && this.isString(target) && xapiValidationRegex.BCP_47.test(target);
+    return this.isDefined(target) && this.isString(target) && validLanguageRegex.test(target);
   },
 
   addPropToTrace(trace, addendum) {
@@ -58,8 +57,9 @@ xapiValidationUtils = {
     return this.addPropToTrace(trace, addendum);
   },
 
-  isGroup(actorOrGroup) {
-    return (actorOrGroup.member !== null && actorOrGroup.member !== undefined) || actorOrGroup.objectType === objectTypes.GROUP;
+  isGroup(actorOrGroup, groupType) {
+    // return (actorOrGroup.member !== null && actorOrGroup.member !== undefined) || actorOrGroup.objectType === objectTypes.GROUP;
+    return (actorOrGroup.member !== null && actorOrGroup.member !== undefined) || actorOrGroup.objectType === groupType;
   }
 };
 

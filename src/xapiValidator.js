@@ -3,8 +3,8 @@
 import {properties, objectTypes, xapiValidationIfiPropertyNames, xApiValidObjectTypes} from './constants/properties';
 import {xapiWhiteListProperties} from './constants/whitelists';
 import {xapiErrorLevels, xapiValidationErrors} from './constants/errors';
-import {xapiValidationRegex, dateFormatRegexPositions} from './constants/regex';
 import {xapiValidationInteractionTypes} from './constants/interaction-types';
+import {xapiValidationRegex, dateFormatRegexPositions} from './constants/regex';
 import {xapiGeneral} from './constants/general';
 import {xapiValidationUtils} from './utils/utils';
 
@@ -246,7 +246,7 @@ function validateLanguageMap(languageMap, trace, errors) {
   for (propName in languageMap) {
 
     if (languageMap.hasOwnProperty(propName)) {
-      if (!xapiValidationUtils.isValidLanguageTag(propName)) {
+      if (!xapiValidationUtils.isValidLanguageTag(propName, xapiValidationRegex.BCP_47)) {
         localErrors.push({
           trace:   xapiValidationUtils.addPropToTrace(localTrace, propName),
           message: `${propName} ${xapiValidationErrors.LANGUAGE_MAP_KEY_INVALID}`,
@@ -904,7 +904,7 @@ function validateActor(actor, trace, errors) {
     return localErrors;
   }
 
-  if (xapiValidationUtils.isGroup(actor)) {
+  if (xapiValidationUtils.isGroup(actor, objectTypes.GROUP)) {
     validateGroup(actor, localTrace, localErrors);
   } else {
     validateAgent(actor, localTrace, localErrors);
@@ -932,7 +932,7 @@ function validateAuthority(authority, trace, errors) {
 
     return localErrors;
   }
-  if (xapiValidationUtils.isGroup(authority)) {
+  if (xapiValidationUtils.isGroup(authority, objectTypes.GROUP)) {
     validateGroup(authority, localTrace, localErrors);
     if (!authority.member || !authority.member.length || authority.member.length !== xapiGeneral.GROUP_AUTHORITY_AGENT_MEMBERS) {
       localErrors.push({
@@ -1067,7 +1067,7 @@ function validateContext(context, trace, errors, statementObjectObjectType) {
     validateContextActivities(context.contextActivities, xapiValidationUtils.addPropToTrace(localTrace, properties.CONTEXT_ACTIVITIES), localErrors);
   }
 
-  if (context.language !== undefined && !xapiValidationUtils.isValidLanguageTag(context.language)) {
+  if (context.language !== undefined && !xapiValidationUtils.isValidLanguageTag(context.language, xapiValidationRegex.BCP_47)) {
     localErrors.push({
       trace:   xapiValidationUtils.localTraceToString(localTrace, properties.LANGUAGE),
       message: xapiValidationErrors.LANGUAGE_MUST_BE_STRING,
@@ -1080,7 +1080,7 @@ function validateContext(context, trace, errors, statementObjectObjectType) {
   }
 
   if (context.instructor !== undefined) {
-    if (xapiValidationUtils.isGroup(context.instructor)) {
+    if (xapiValidationUtils.isGroup(context.instructor, objectTypes.GROUP)) {
       validateGroup(context.instructor, xapiValidationUtils.addPropToTrace(localTrace, properties.INSTRUCTOR), localErrors);
     } else {
       validateAgent(context.instructor, xapiValidationUtils.addPropToTrace(localTrace, properties.INSTRUCTOR), localErrors);
