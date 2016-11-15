@@ -1,7 +1,6 @@
 'use strict';
 
-import {properties, objectTypes, xapiValidationIfiPropertyNames, xApiValidObjectTypes} from './constants/properties';
-import {xapiWhiteListProperties} from './constants/whitelists';
+import {properties, objectTypes, xapiValidationIfiPropertyNames, xApiValidObjectTypes, xapiWhiteListProperties} from './constants/properties';
 import {xapiErrorLevels, xapiValidationErrors} from './constants/errors';
 import {xapiValidationInteractionTypes} from './constants/interaction-types';
 import {xapiValidationRegex, dateFormatRegexPositions} from './constants/regex';
