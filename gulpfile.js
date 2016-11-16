@@ -19,14 +19,15 @@ const
   }),
   BROWSERIFY_TRANSFORM = 'babelify',
   BROWSERIFY_CONFIG = Object.freeze({
-    debug: true,
-    json: true,
+    debug:      true,
+    json:       true,
     standalone: 'xapi-validator'
   }),
   DIST_FILENAME      = 'xapiValidator.js',
   DIST_FILENAME_MIN  = 'xapiValidator.min.js',
   DIST_TEST_FILENAME = 'xapiValidator.test.js',
   DIST_PATH          = 'lib',
+  DIST_MAIN_PATH     = './',
   DIST_TEST_PATH     = 'spec',
   MAPS_PATH          = './maps',
   SRC_FILE           = 'src/xapiValidator.js',
@@ -44,7 +45,7 @@ const
   DEFAULT_TASK     = 'default',
   DEFAULT_TASKS    = [BUILD_TASK, BUILD_TEST_TASK],
   WATCH_TASK       = 'watch',
-  WATCH_TASKS      = [BUILD_TASK, BUILD_TEST_TASK]
+  WATCH_TASKS      = [BUILD_TASK, BUILD_TEST_TASK, CONNECT_TASK]
 ;
 
 gulp.task(BUILD_TASK, () => {
@@ -52,7 +53,7 @@ gulp.task(BUILD_TASK, () => {
     .transform(BROWSERIFY_TRANSFORM, BABEL_CONFIG)
     .bundle()
     .pipe(source(DIST_FILENAME))
-    .pipe(gulp.dest(DIST_PATH))
+    .pipe(gulp.dest(DIST_MAIN_PATH))
     .pipe(livereload());
 });
 
@@ -80,7 +81,6 @@ gulp.task(BUILD_PROD_TASK, () => {
 
 gulp.task(WATCH_TASK, WATCH_TASKS, () => {
   livereload.listen();
-  connect.server();
   gulp.watch(WATCH_FILES, WATCH_TASKS);
 });
 

@@ -1,10 +1,6 @@
 import {_} from 'underscore';
 import {expect} from 'chai';
-import {validateStatement} from '../src/xapiValidator';
-
-var xapiValidator;
-
-xapiValidator = {validateStatement};
+import xapiValidator from '../src/xapiValidator';
 
 describe("xapiValidator", function() {
   describe("#validateStatement", function() {

@@ -7,6 +7,8 @@ import {xapiValidationRegex, dateFormatRegexPositions} from './constants/regex';
 import {xapiGeneral} from './constants/general';
 import {xapiValidationUtils} from './utils/utils';
 
+var xapiValidation;
+
 function makeV1Report(instance, errors) {
   var version;
 
@@ -1277,4 +1279,8 @@ function dateIncludesZoneInformation(matched) {
           (matched[dateFormatRegexPositions.RELATIVE_TIME] && matched[dateFormatRegexPositions.TIME_ZONE_HOUR]);
 }
 
-export var validateStatement = validateAmbiguousTypeStatement;
+xapiValidation = {
+  validateStatement: validateAmbiguousTypeStatement
+};
+
+module.exports = xapiValidation;

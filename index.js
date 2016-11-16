@@ -1,7 +1,2 @@
-'use strict';
-
-var xapiValidator;
-
-xapiValidator = require('./lib/xapiValidator');
-
+var xapiValidator = require('./xapiValidator');
 module.exports = xapiValidator;
