@@ -1,24 +1,28 @@
+import {_} from 'underscore';
+import {expect} from 'chai';
+import xapiValidator from '../src/xapiValidator';
+
 describe("xapiValidator", function() {
   describe("#validateStatement", function() {
-  
+
     function reportHasErrorWithTracePrefix(report, prefix, targetLevel) {
-      if (report == null || report == undefined || report.errors == null || report.errors == undefined) {
+      if (report === null || report === undefined || report.errors === null || report.errors === undefined) {
         return false;
       }
       var hasTargetLevel = targetLevel !== null && targetLevel !== undefined;
       return _.any(report.errors, function(err) {
-        var foundPrefix = err.trace.indexOf(prefix) == 0;
-        return hasTargetLevel ? targetLevel == err.level && foundPrefix : foundPrefix;
+        var foundPrefix = err.trace.indexOf(prefix) === 0;
+        return hasTargetLevel ? targetLevel === err.level && foundPrefix : foundPrefix;
       });
     }
-  
+
     describe("when passed no arguments", function() {
       it("returns non-null report", function() {
         var result = xapiValidator.validateStatement();
         expect(result).to.be.not.null;
         expect(result).to.be.a("Object");
       });
-      
+
       it("includes one error", function() {
         var result = xapiValidator.validateStatement();
         var errors = result.errors;
@@ -30,14 +34,14 @@ describe("xapiValidator", function() {
         expect(errors[0]).to.have.property("level")
           .that.equals("MUST_VIOLATION");
       });
-      
+
       it("has a null instance property in the report", function() {
         expect(xapiValidator.validateStatement())
           .to.have.property("instance")
             .that.is.null;
       });
     });
-    
+
     describe("when passed a null argument", function() {
       it("returns non-null report", function() {
         var result = xapiValidator.validateStatement(null);
@@ -47,7 +51,7 @@ describe("xapiValidator", function() {
           .that.is.a("Array");
         expect(result).to.have.property("instance");
       });
-      
+
       it("includes one error", function() {
         var result = xapiValidator.validateStatement(null);
         var errors = result.errors;
@@ -59,14 +63,14 @@ describe("xapiValidator", function() {
         expect(errors[0]).to.have.property("level")
           .that.equals("MUST_VIOLATION");
       });
-      
+
       it("has a null instance property in the report", function() {
         expect(xapiValidator.validateStatement(null))
           .to.have.property("instance")
             .that.is.null;
       });
     });
-    
+
     describe("when passed a json string argument", function() {
       var minimalJsonString = "{\"id\":\"whatever\"}";
       it("returns non-null report", function() {
@@ -77,7 +81,7 @@ describe("xapiValidator", function() {
           .that.is.a("Array");
         expect(result).to.have.property("instance");
       });
-      
+
       it("has an instance property with the deserialized JSON in the report", function() {
         var result = xapiValidator.validateStatement(minimalJsonString);
         expect(result).to.have.property("instance")
@@ -85,7 +89,7 @@ describe("xapiValidator", function() {
           .that.deep.equals({"id":"whatever"});
       });
     });
-    
+
     describe("when passed a json string argument encoding null", function() {
       var minimalJsonString = "null";
       it("returns non-null report", function() {
@@ -96,7 +100,7 @@ describe("xapiValidator", function() {
           .that.is.a("Array");
         expect(result).to.have.property("instance");
       });
-      
+
       it("includes one error", function() {
         var result = xapiValidator.validateStatement(minimalJsonString);
         var errors = result.errors;
@@ -106,14 +110,14 @@ describe("xapiValidator", function() {
         expect(errors[0]).to.have.property("level")
           .that.equals("MUST_VIOLATION");
       });
-      
+
       it("has an instance property with null value", function() {
         var result = xapiValidator.validateStatement(minimalJsonString);
         expect(result).to.have.property("instance")
           .that.is.null;
       });
     });
-    
+
     describe("when passed an invalid json string argument", function() {
       var minimalJsonString = "derp";
       it("returns non-null report", function() {
@@ -124,25 +128,24 @@ describe("xapiValidator", function() {
           .that.is.a("Array");
         expect(result).to.have.property("instance");
       });
-      
+
       it("includes one error", function() {
         var result = xapiValidator.validateStatement(minimalJsonString);
         var errors = result.errors;
         expect(errors).to.be.instanceOf(Array);
         expect(errors).to.have.length(1);
-        expect(errors[0]).to.have.property("message")
-          .that.equals("Invalid JSON. The statement could not be parsed: Unexpected token d");
+        expect(errors[0]).to.have.property("message");
         expect(errors[0]).to.have.property("level")
           .that.equals("MUST_VIOLATION");
       });
-      
+
       it("has an instance property with null value", function() {
         var result = xapiValidator.validateStatement(minimalJsonString);
         expect(result).to.have.property("instance")
           .that.is.null;
       });
     });
-    
+
     describe("when passed a statement object", function() {
       var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
           actor : {mbox:"mailto:agent@example.com"},
@@ -156,14 +159,14 @@ describe("xapiValidator", function() {
           .that.is.a("Array");
         expect(result).to.have.property("instance");
       });
-      
+
       it("has an instance property that matches the input object", function() {
         var result = xapiValidator.validateStatement(inputStatement);
         expect(result).to.have.property("instance")
           .that.deep.equals(inputStatement);
       });
     });
-    
+
     describe("when given a null id property", function() {
       var inputStatement = {id : null ,
           actor : {mbox:"mailto:agent@example.com"},
@@ -174,7 +177,7 @@ describe("xapiValidator", function() {
         expect(reportHasErrorWithTracePrefix(result, "statement.id")).to.be.true;
       });
     });
-    
+
     describe("when given an invalid UUID id property", function() {
       var inputStatement = {id : "abc123",
           actor : {mbox:"mailto:agent@example.com"},
@@ -185,7 +188,7 @@ describe("xapiValidator", function() {
         expect(reportHasErrorWithTracePrefix(result, "statement.id")).to.be.true;
       });
     });
-    
+
     describe("when given a valid UUID id property", function() {
       var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0",
           actor : {mbox:"mailto:agent@example.com"},
@@ -196,7 +199,7 @@ describe("xapiValidator", function() {
         expect(reportHasErrorWithTracePrefix(result, "statement.id")).to.be.false;
       });
     });
-    
+
     describe("when given a null actor property", function() {
       var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
           actor : null,
@@ -207,7 +210,7 @@ describe("xapiValidator", function() {
         expect(reportHasErrorWithTracePrefix(result, "statement.actor")).to.be.true;
       });
     });
-    
+
     describe("when given an empty non-null actor property", function() {
       var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
           actor : {},
@@ -218,7 +221,7 @@ describe("xapiValidator", function() {
         expect(reportHasErrorWithTracePrefix(result, "statement.actor")).to.be.true;
       });
     });
-    
+
     describe("when given an otherwise valid actor", function() {
       var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
           actor : {mbox:"mailto:group@example.com"},
@@ -228,13 +231,13 @@ describe("xapiValidator", function() {
         var result = xapiValidator.validateStatement(inputStatement);
         expect(result.errors).to.have.property("length", 0);
       });
-      
+
       it("the name property produces no errors when a simple string", function() {
         inputStatement.actor.name = "hello";
         var result = xapiValidator.validateStatement(inputStatement);
         expect(result.errors).to.have.property("length", 0);
       });
-      
+
       it("the name property produces no errors when a simple string", function() {
         inputStatement.actor.name = 1.23;
         var result = xapiValidator.validateStatement(inputStatement);
@@ -242,7 +245,7 @@ describe("xapiValidator", function() {
         expect(result.errors).to.have.property("length", 1);
       });
     });
-    
+
     describe("when given an actor with an objectType of 'Group'", function() {
       var moreValidStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
           actor : {objectType:"Group", member:[]},
@@ -252,7 +255,7 @@ describe("xapiValidator", function() {
         var result = xapiValidator.validateStatement(moreValidStatement);
         expect(reportHasErrorWithTracePrefix(result, "statement.actor.member")).to.be.false;
       });
-      
+
       it("the member property is required to be present if the actor is unidentified, and produces an error when absent", function() {
         var inputInvalidStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
           actor : {objectType:"Group"},
@@ -261,15 +264,15 @@ describe("xapiValidator", function() {
         var result = xapiValidator.validateStatement(inputInvalidStatement);
         expect(reportHasErrorWithTracePrefix(result, "statement.actor.member")).to.be.true;
       });
-      
+
       it("the member property is not required to be present if the actor is identified", function() {
-        var result = xapiValidator.validateStatement({id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" , 
+        var result = xapiValidator.validateStatement({id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
           actor : {objectType:"Group", mbox:"mailto:group@example.com"},
           verb: { "id":"http://adlnet.gov/expapi/verbs/created", "display":{"en-US":"created"}},
           object : {id : "http://example.com/myUniqueId", objectType:"Activity"}});
         expect(reportHasErrorWithTracePrefix(result, "statement.actor.member")).to.be.false;
       });
-      
+
       it("the member property is allowed to be present if the actor is identified", function() {
         var result = xapiValidator.validateStatement({id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0",
           actor : {objectType:"Group", mbox:"mailto:group@example.com", member:[]},
@@ -278,7 +281,7 @@ describe("xapiValidator", function() {
         expect(reportHasErrorWithTracePrefix(result, "statement.actor.member")).to.be.false;
       });
     });
-    
+
     describe("when given an actor with a members property", function() {
       var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
           actor : {member:[]},
@@ -287,28 +290,28 @@ describe("xapiValidator", function() {
       it("the member property has no errors about it when present but empty", function() {
         expect(xapiValidator.validateStatement(inputStatement).errors).to.be.empty;
       });
-      
+
       it("the member property has no errors when populated with a simple agent", function() {
         inputStatement.actor.member = [{mbox:"mailto:group@example.com"}];
         expect(xapiValidator.validateStatement(inputStatement).errors).to.be.empty;
       });
-      
+
       it("the member property reports an error when populated with a Group object via objectType", function() {
         inputStatement.actor.member = [{mbox:"mailto:group@example.com", objectType:"Group"}];
         expect(xapiValidator.validateStatement(inputStatement).errors)
           .to.have.property("length", 1);
       });
-      
+
       it("the member property's agent reports an error when given an account missing its homePage", function() {
         inputStatement.actor.member = [{account:{name:"bob"}}];
         expect(reportHasErrorWithTracePrefix(xapiValidator.validateStatement(inputStatement), "statement.actor.member[0].account.homePage")).to.be.true;
       });
-      
+
       it("the member property's agent reports an error when given an account missing its name", function() {
         inputStatement.actor.member = [{account:{homePage:"http://example.com"}}];
         expect(reportHasErrorWithTracePrefix(xapiValidator.validateStatement(inputStatement), "statement.actor.member[0].account.name")).to.be.true;
       });
-      
+
       it("the member property's agent reports an error when given an account with an all-lowercase homepage", function() {
         inputStatement.actor.member = [{account:{homepage:"http://example.com", name:"bob"}}];
         var report = xapiValidator.validateStatement(inputStatement);
@@ -322,28 +325,28 @@ describe("xapiValidator", function() {
         expect(xapiValidator.validateStatement(inputStatement).errors)
           .to.have.property("length", 0);
       });
-      
+
       it("the member property's agent reports no error when given a valid mbox", function() {
         inputStatement.actor.member = [{mbox:"mailto:bob@example.com"}];
         expect(xapiValidator.validateStatement(inputStatement).errors)
           .to.have.property("length", 0);
       });
-      
+
       it("the member property's agent reports an error when given an invalid mbox", function() {
         inputStatement.actor.member = [{mbox:"SOMETHINGWRONG:bob@example.com"}];
         var results = xapiValidator.validateStatement(inputStatement);
         expect(reportHasErrorWithTracePrefix(results, "statement.actor.member[0].mbox")).to.be.true;
         expect(results.errors).to.have.property("length", 1);
       });
-      
+
       it("the member property reports an error when populated with a Group object via member", function() {
         inputStatement.actor.member = [{mbox:"mailto:group@example.com", member:[]}];
         expect(xapiValidator.validateStatement(inputStatement).errors)
           .to.have.property("length", 1);
       });
-      
+
     });
-    
+
     describe("when given a statement without a verb property", function() {
       it("reports an error", function() {
         var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
@@ -354,7 +357,7 @@ describe("xapiValidator", function() {
         expect(reportHasErrorWithTracePrefix(results, "statement.verb")).to.be.true;
       });
     });
-    
+
     describe("when given a verb without an id property", function() {
       it("reports an error", function() {
         var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
@@ -366,7 +369,7 @@ describe("xapiValidator", function() {
         expect(reportHasErrorWithTracePrefix(results, "statement.verb.id", "MUST_VIOLATION")).to.be.true;
       });
     });
-    
+
     describe("when given a verb with a non-string id property", function() {
       it("reports an error", function() {
         var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
@@ -378,7 +381,7 @@ describe("xapiValidator", function() {
         expect(reportHasErrorWithTracePrefix(results, "statement.verb.id", "MUST_VIOLATION")).to.be.true;
       });
     });
-    
+
     describe("when given a verb with a relative URI id property", function() {
       it("reports an SHOULD_VIOLATION error", function() {
         var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
@@ -390,7 +393,7 @@ describe("xapiValidator", function() {
         expect(reportHasErrorWithTracePrefix(results, "statement.verb.id", "SHOULD_VIOLATION")).to.be.true;
       });
     });
-    
+
     describe("when given a verb without a display property", function() {
       it("reports an error", function() {
         var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
@@ -402,7 +405,7 @@ describe("xapiValidator", function() {
         expect(reportHasErrorWithTracePrefix(results, "statement.verb.display", "SHOULD_VIOLATION")).to.be.true;
       });
     });
-    
+
     describe("when given a verb with an empty display property", function() {
       it("reports no errors", function() {
         var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
@@ -412,7 +415,7 @@ describe("xapiValidator", function() {
         expect(xapiValidator.validateStatement(inputStatement).errors).to.have.property("length", 0);
       });
     });
-    
+
     describe("when given a verb.display with RFC 5646 key and string value", function() {
       it("reports no errors", function() {
         var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
@@ -422,7 +425,7 @@ describe("xapiValidator", function() {
         expect(xapiValidator.validateStatement(inputStatement).errors).to.have.property("length", 0);
       });
     });
-    
+
     describe("when given a verb.display with RFC 5646 key and non-string value", function() {
       it("reports an error", function() {
         var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
@@ -434,7 +437,7 @@ describe("xapiValidator", function() {
         expect(reportHasErrorWithTracePrefix(results, "statement.verb.display[\"en-US\"]", "MUST_VIOLATION")).to.be.true;
       });
     });
-    
+
     describe("when given a verb.display with invalid key and string value", function() {
       it("reports an error", function() {
         var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
@@ -446,7 +449,7 @@ describe("xapiValidator", function() {
         expect(reportHasErrorWithTracePrefix(results, "statement.verb.display.123totallyWrong", "MUST_VIOLATION")).to.be.true;
       });
     });
-    
+
     describe("when the object property is absent", function() {
       it("reports a MUST_VIOLATION error", function() {
         var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
@@ -457,7 +460,7 @@ describe("xapiValidator", function() {
         expect(reportHasErrorWithTracePrefix(results, "statement.object", "MUST_VIOLATION")).to.be.true;
       });
     });
-    
+
     describe("when the object property is null", function() {
       it("reports a MUST_VIOLATION error", function() {
         var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
@@ -469,7 +472,7 @@ describe("xapiValidator", function() {
         expect(reportHasErrorWithTracePrefix(results, "statement.object", "MUST_VIOLATION")).to.be.true;
       });
     });
-    
+
     describe("when the object lacks an objectType property", function() {
       it("reports a SHOULD_VIOLATION error", function() {
         var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
@@ -487,7 +490,7 @@ describe("xapiValidator", function() {
         var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
           actor : {member:[]},
           verb: { "id":"http://adlnet.gov/expapi/verbs/created", display : {"en-US":"created"}},
-          object : {id : "http://example.com/myUniqueId", objectType:"Activity", 
+          object : {id : "http://example.com/myUniqueId", objectType:"Activity",
             definition: null}};
         var results = xapiValidator.validateStatement(inputStatement);
         expect(results.errors).to.have.property("length", 1);
@@ -500,7 +503,7 @@ describe("xapiValidator", function() {
         var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
           actor : {member:[]},
           verb: { "id":"http://adlnet.gov/expapi/verbs/created", display : {"en-US":"created"}},
-          object : {id : "http://example.com/myUniqueId", objectType:"Activity", 
+          object : {id : "http://example.com/myUniqueId", objectType:"Activity",
             definition: []}};
         var results = xapiValidator.validateStatement(inputStatement);
         expect(results.errors).to.have.property("length", 1);
@@ -524,7 +527,7 @@ describe("xapiValidator", function() {
         var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
           actor : {member:[]},
           verb: { "id":"http://adlnet.gov/expapi/verbs/created", display : {"en-US":"created"}},
-          object : {id : "http://example.com/myUniqueId", objectType:"Activity", 
+          object : {id : "http://example.com/myUniqueId", objectType:"Activity",
             definition:{name:1.23}}};
         var results = xapiValidator.validateStatement(inputStatement);
         expect(results.errors).to.have.property("length", 1);
@@ -535,7 +538,7 @@ describe("xapiValidator", function() {
         var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
           actor : {member:[]},
           verb: { "id":"http://adlnet.gov/expapi/verbs/created", display : {"en-US":"created"}},
-          object : {id : "http://example.com/myUniqueId", objectType:"Activity", 
+          object : {id : "http://example.com/myUniqueId", objectType:"Activity",
             definition:{name:{"123 totally not a language code" : "created"}}}};
         var results = xapiValidator.validateStatement(inputStatement);
         expect(results.errors).to.have.property("length", 1);
@@ -546,20 +549,20 @@ describe("xapiValidator", function() {
         var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
           actor : {member:[]},
           verb: { "id":"http://adlnet.gov/expapi/verbs/created", display : {"en-US":"created"}},
-          object : {id : "http://example.com/myUniqueId", objectType:"Activity", 
+          object : {id : "http://example.com/myUniqueId", objectType:"Activity",
             definition:{type:"http://adlnet.gov/expapi/activities/cmi.interaction", interactionType:"true-false"}}};
         var results = xapiValidator.validateStatement(inputStatement);
         expect(results.errors).to.have.property("length", 0);
         expect(reportHasErrorWithTracePrefix(results, "statement.object.definition.name", "MUST_VIOLATION")).to.be.false;
       });
 
-      
+
 
       it("a non-CMI interactionType value produces an error", function() {
         var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
           actor : {member:[]},
           verb: { "id":"http://adlnet.gov/expapi/verbs/created", display : {"en-US":"created"}},
-          object : {id : "http://example.com/myUniqueId", objectType:"Activity", 
+          object : {id : "http://example.com/myUniqueId", objectType:"Activity",
             definition:{type:"http://adlnet.gov/expapi/activities/cmi.interaction", interactionType:"graphicGapMatchInteraction"}}};
         var results = xapiValidator.validateStatement(inputStatement);
         expect(results.errors).to.have.property("length", 1);
@@ -570,7 +573,7 @@ describe("xapiValidator", function() {
         var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
           actor : {member:[]},
           verb: { "id":"http://adlnet.gov/expapi/verbs/created", display : {"en-US":"created"}},
-          object : {id : "http://example.com/myUniqueId", objectType:"Activity", 
+          object : {id : "http://example.com/myUniqueId", objectType:"Activity",
             definition:{correctResponsesPattern: 1.23}}};
         var results = xapiValidator.validateStatement(inputStatement);
         expect(results.errors).to.have.property("length", 1);
@@ -581,7 +584,7 @@ describe("xapiValidator", function() {
         var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
           actor : {member:[]},
           verb: { "id":"http://adlnet.gov/expapi/verbs/created", display : {"en-US":"created"}},
-          object : {id : "http://example.com/myUniqueId", objectType:"Activity", 
+          object : {id : "http://example.com/myUniqueId", objectType:"Activity",
             definition:{correctResponsesPattern: "1.23"}}};
         var results = xapiValidator.validateStatement(inputStatement);
         expect(results.errors).to.have.property("length", 1);
@@ -592,7 +595,7 @@ describe("xapiValidator", function() {
         var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
           actor : {member:[]},
           verb: { "id":"http://adlnet.gov/expapi/verbs/created", display : {"en-US":"created"}},
-          object : {id : "http://example.com/myUniqueId", objectType:"Activity", 
+          object : {id : "http://example.com/myUniqueId", objectType:"Activity",
             definition:{correctResponsesPattern: [1.23]}}};
         var results = xapiValidator.validateStatement(inputStatement);
         expect(results.errors).to.have.property("length", 1);
@@ -603,7 +606,7 @@ describe("xapiValidator", function() {
         var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
           actor : {member:[]},
           verb: { "id":"http://adlnet.gov/expapi/verbs/created", display : {"en-US":"created"}},
-          object : {id : "http://example.com/myUniqueId", objectType:"Activity", 
+          object : {id : "http://example.com/myUniqueId", objectType:"Activity",
             definition:{correctResponsesPattern: ["1.23"]}}};
         var results = xapiValidator.validateStatement(inputStatement);
         expect(results.errors).to.have.property("length", 0);
@@ -614,7 +617,7 @@ describe("xapiValidator", function() {
         var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
           actor : {member:[]},
           verb: { "id":"http://adlnet.gov/expapi/verbs/created", display : {"en-US":"created"}},
-          object : {id : "http://example.com/myUniqueId", objectType:"Activity", 
+          object : {id : "http://example.com/myUniqueId", objectType:"Activity",
             definition:{type:"http://example.com/somethingElse", interactionType:"choice", choices:[]}}
         };
         var results = xapiValidator.validateStatement(inputStatement);
@@ -626,7 +629,7 @@ describe("xapiValidator", function() {
         var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
           actor : {member:[]},
           verb: { "id":"http://adlnet.gov/expapi/verbs/created", display : {"en-US":"created"}},
-          object : {id : "http://example.com/myUniqueId", objectType:"Activity", 
+          object : {id : "http://example.com/myUniqueId", objectType:"Activity",
             definition:{type:"http://adlnet.gov/expapi/activities/cmi.interaction", interactionType:"choice", steps:[]}}
         };
         var results = xapiValidator.validateStatement(inputStatement);
@@ -638,8 +641,8 @@ describe("xapiValidator", function() {
         var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
           actor : {member:[]},
           verb: { "id":"http://adlnet.gov/expapi/verbs/created", display : {"en-US":"created"}},
-          object : {id : "http://example.com/myUniqueId", objectType:"Activity", 
-            definition:{type:"http://adlnet.gov/expapi/activities/cmi.interaction", interactionType:"choice", 
+          object : {id : "http://example.com/myUniqueId", objectType:"Activity",
+            definition:{type:"http://adlnet.gov/expapi/activities/cmi.interaction", interactionType:"choice",
                 choices:[{id:"hello invalid id", description:{}}]}}
         };
         var results = xapiValidator.validateStatement(inputStatement);
@@ -651,8 +654,8 @@ describe("xapiValidator", function() {
         var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
           actor : {member:[]},
           verb: { "id":"http://adlnet.gov/expapi/verbs/created", display : {"en-US":"created"}},
-          object : {id : "http://example.com/myUniqueId", objectType:"Activity", 
-            definition:{type:"http://adlnet.gov/expapi/activities/cmi.interaction", interactionType:"choice", 
+          object : {id : "http://example.com/myUniqueId", objectType:"Activity",
+            definition:{type:"http://adlnet.gov/expapi/activities/cmi.interaction", interactionType:"choice",
                 choices:[{id:"idA", description:{}}, {id:"idA", description:{}}]}}
         };
         var results = xapiValidator.validateStatement(inputStatement);
@@ -681,7 +684,7 @@ describe("xapiValidator", function() {
             expect(reportHasErrorWithTracePrefix(results, "statement.object.id", "MUST_VIOLATION")).to.be.true;
         });
       });
-      
+
       describe("given a substatement type object", function() {
           it("should not report an error when valid", function() {
               var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0",
@@ -695,7 +698,7 @@ describe("xapiValidator", function() {
 
                 expect(results.errors).to.have.property("length", 0);
           });
-          
+
           it("reports a MUST error when the id property is present", function() {
               var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0",
                   actor : {mbox:"mailto:agent@example.com"},
@@ -706,11 +709,11 @@ describe("xapiValidator", function() {
                     verb: { "id":"http://adlnet.gov/expapi/verbs/created", "display":{"en-US":"created"}},
                     object: { id : "http://example.com/myUniqueId", objectType:"Activity"}}};
               var results = xapiValidator.validateStatement(inputStatement);
-              
+
               expect(results.errors).to.have.property("length", 1);
               expect(reportHasErrorWithTracePrefix(results, "statement.object.id", "MUST_VIOLATION")).to.be.true;
           });
-          
+
           it("reports a MUST error when the version property is present", function() {
               var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0",
                     actor : {mbox:"mailto:agent@example.com"},
@@ -725,7 +728,7 @@ describe("xapiValidator", function() {
                 expect(results.errors).to.have.property("length", 1);
                 expect(reportHasErrorWithTracePrefix(results, "statement.object.version", "MUST_VIOLATION")).to.be.true;
           });
-          
+
           it("reports a MUST error when the stored property is present", function() {
                 var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0",
                       actor : {mbox:"mailto:agent@example.com"},
@@ -736,11 +739,11 @@ describe("xapiValidator", function() {
                         verb: { "id":"http://adlnet.gov/expapi/verbs/created", "display":{"en-US":"created"}},
                         object: { id : "http://example.com/myUniqueId", objectType:"Activity"}}};
                   var results = xapiValidator.validateStatement(inputStatement);
-                  
+
                   expect(results.errors).to.have.property("length", 1);
                   expect(reportHasErrorWithTracePrefix(results, "statement.object.stored", "MUST_VIOLATION")).to.be.true;
           });
-          
+
           it("reports a MUST error when the authority property is present", function() {
                 var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0",
                       actor : {mbox:"mailto:agent@example.com"},
@@ -843,7 +846,7 @@ describe("xapiValidator", function() {
                 result : {completion:false}};
             var results = xapiValidator.validateStatement(inputStatement);
             expect(results.errors).to.have.property("length", 0);
-            
+
         });
 
         it("a non-String response property produces an error", function() {
@@ -864,7 +867,7 @@ describe("xapiValidator", function() {
                 object : {id : "http://example.com/myUniqueId", objectType:"Activity"},
                 result : {response:"idA"}};
             var results = xapiValidator.validateStatement(inputStatement);
-            expect(results.errors).to.have.property("length", 0); 
+            expect(results.errors).to.have.property("length", 0);
         });
 
         it("a non-String duration property produces an error", function() {
@@ -929,7 +932,7 @@ describe("xapiValidator", function() {
                 object : {id : "http://example.com/myUniqueId", objectType:"Activity"},
                 result : {score:{raw:123}}};
             var results = xapiValidator.validateStatement(inputStatement);
-            expect(results.errors).to.have.property("length", 0); 
+            expect(results.errors).to.have.property("length", 0);
         });
 
         it("a Number raw property below min produces an error", function() {
@@ -961,7 +964,7 @@ describe("xapiValidator", function() {
                 object : {id : "http://example.com/myUniqueId", objectType:"Activity"},
                 result : {score:{raw:123, min:120, max:125}}};
             var results = xapiValidator.validateStatement(inputStatement);
-            expect(results.errors).to.have.property("length", 0); 
+            expect(results.errors).to.have.property("length", 0);
         });
 
         it("a non-Number scaled property produces an error", function() {
@@ -982,7 +985,7 @@ describe("xapiValidator", function() {
                 object : {id : "http://example.com/myUniqueId", objectType:"Activity"},
                 result : {score:{scaled:0.5}}};
             var results = xapiValidator.validateStatement(inputStatement);
-            expect(results.errors).to.have.property("length", 0); 
+            expect(results.errors).to.have.property("length", 0);
         });
 
         it("a Number scaled property below 0 produces an error", function() {
@@ -1025,7 +1028,7 @@ describe("xapiValidator", function() {
                 object : {id : "http://example.com/myUniqueId", objectType:"Activity"},
                 result : {score:{max:123}}};
             var results = xapiValidator.validateStatement(inputStatement);
-            expect(results.errors).to.have.property("length", 0); 
+            expect(results.errors).to.have.property("length", 0);
         });
 
         it("a Number max property below min produces an error", function() {
@@ -1057,7 +1060,7 @@ describe("xapiValidator", function() {
                 object : {id : "http://example.com/myUniqueId", objectType:"Activity"},
                 result : {score:{min:123}}};
             var results = xapiValidator.validateStatement(inputStatement);
-            expect(results.errors).to.have.property("length", 0); 
+            expect(results.errors).to.have.property("length", 0);
         });
 
         it("a Number min property above max produces an error", function() {
@@ -1080,7 +1083,7 @@ describe("xapiValidator", function() {
                 object : {id : "http://example.com/myUniqueId", objectType:"Activity"},
                 context: {}};
             var results = xapiValidator.validateStatement(inputStatement);
-            expect(results.errors).to.have.property("length", 0); 
+            expect(results.errors).to.have.property("length", 0);
         });
 
         it("an non-object context value produces an error", function() {
@@ -1791,7 +1794,7 @@ describe("xapiValidator", function() {
                 actor : {mbox:"mailto:agent@example.com"},
                 verb: { "id":"http://adlnet.gov/expapi/verbs/created", "display":{"en-US":"created"}},
                 object : {id : "http://example.com/myUniqueId", objectType:"Activity"},
-                authority: {objectType:"Group", member:[{objectType:"Agent", mbox:"mailto:bob@example.com"}, 
+                authority: {objectType:"Group", member:[{objectType:"Agent", mbox:"mailto:bob@example.com"},
                     {objectType:"Agent", mbox:"mailto:tom@example.com"}]}};
             var results = xapiValidator.validateStatement(inputStatement);
             expect(results.errors).to.have.property("length", 0);
@@ -1813,7 +1816,7 @@ describe("xapiValidator", function() {
                 actor : {mbox:"mailto:agent@example.com"},
                 verb: { "id":"http://adlnet.gov/expapi/verbs/created", "display":{"en-US":"created"}},
                 object : {id : "http://example.com/myUniqueId", objectType:"Activity"},
-                authority: {objectType:"Group", member:[{objectType:"Agent", mbox:"mailto:bob@example.com"}, 
+                authority: {objectType:"Group", member:[{objectType:"Agent", mbox:"mailto:bob@example.com"},
                     {objectType:"Agent", mbox:"mailto:tom@example.com"},
                     {objectType:"Agent", mbox:"mailto:frank@example.com"}]}};
             var results = xapiValidator.validateStatement(inputStatement);
@@ -1826,7 +1829,7 @@ describe("xapiValidator", function() {
                 actor : {mbox:"mailto:agent@example.com"},
                 verb: { "id":"http://adlnet.gov/expapi/verbs/created", "display":{"en-US":"created"}},
                 object : {id : "http://example.com/myUniqueId", objectType:"Activity"},
-                authority: {objectType:"Group", member:[{objectType:"Agent", mbox:"mailto:bob@example.com"}, 
+                authority: {objectType:"Group", member:[{objectType:"Agent", mbox:"mailto:bob@example.com"},
                     {objectType:"Agent"}]}};
             var results = xapiValidator.validateStatement(inputStatement);
             expect(results.errors).to.have.property("length", 1);
@@ -1855,7 +1858,7 @@ describe("xapiValidator", function() {
             var results = xapiValidator.validateStatement(inputStatement);
             expect(results.errors).to.have.property("length", 1);
             expect(reportHasErrorWithTracePrefix(results, "statement.version", "MUST_VIOLATION")).to.be.true;
-        });        
+        });
       });
 
       describe("for an version property with a string value", function() {
@@ -1911,7 +1914,7 @@ describe("xapiValidator", function() {
             expect(results.errors).to.have.property("length", 1);
             expect(reportHasErrorWithTracePrefix(results, "statement.version", "MUST_VIOLATION")).to.be.true;
         });
-        
+
         it("a semantic version with SemVer 2.0.0 build release metadata not in SemVer 1.0.0 produces an error", function() {
             var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
                 actor : {mbox:"mailto:agent@example.com"},
@@ -1921,7 +1924,7 @@ describe("xapiValidator", function() {
             var results = xapiValidator.validateStatement(inputStatement);
             expect(results.errors).to.have.property("length", 1);
             expect(reportHasErrorWithTracePrefix(results, "statement.version", "MUST_VIOLATION")).to.be.true;
-        });    
+        });
       });
 
       describe("for an attachments property on the statement with a non-Array value", function() {
@@ -1946,7 +1949,7 @@ describe("xapiValidator", function() {
             expect(results.errors).to.have.property("length", 1);
             expect(reportHasErrorWithTracePrefix(results, "statement.attachments", "MUST_VIOLATION")).to.be.true;
         });
-        
+
         it("an object map value produces an error", function() {
             var inputStatement = {id : "fd41c918-b88b-4b20-a0a5-a4c32391aaa0" ,
                 actor : {mbox:"mailto:agent@example.com"},
@@ -1956,7 +1959,7 @@ describe("xapiValidator", function() {
             var results = xapiValidator.validateStatement(inputStatement);
             expect(results.errors).to.have.property("length", 1);
             expect(reportHasErrorWithTracePrefix(results, "statement.attachments", "MUST_VIOLATION")).to.be.true;
-        });        
+        });
       });
 
       describe("for an attachments property on the statement with an Array value", function() {
@@ -1968,7 +1971,7 @@ describe("xapiValidator", function() {
                 attachments: []};
             var results = xapiValidator.validateStatement(inputStatement);
             expect(results.errors).to.have.property("length", 0);
-        });        
+        });
       });
 
       describe("for an attachment object within the attachments property's Array on the statement", function() {

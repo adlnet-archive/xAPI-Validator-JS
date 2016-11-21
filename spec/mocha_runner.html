@@ -1,6 +1,7 @@
-<html>
+<!DOCTYPE html>
   <head>
     <meta charset="utf-8">
+    <title>xAPI Validator</title>
     <link rel="stylesheet" href="lib/mocha.css" />
   </head>
   <body>
@@ -9,11 +10,11 @@
     <script src="lib/chai.js"></script>
     <script src="lib/underscore.js"></script>
     <script>
-      mocha.setup('bdd'); 
+      mocha.setup('bdd');
       expect = chai.expect;
     </script>
-    <script src="../xapiValidator.js"></script>
-    <script src="xapiValidator_spec.js"></script>
+    <script src="../lib/xapiValidator.js"></script>
+    <script src="xapiValidator.test.js"></script>
     <script>
       if (window.mochaPhantomJS) { mochaPhantomJS.run(); }
       else { mocha.run(); }

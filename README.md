@@ -1,4 +1,5 @@
 # xAPI Validator
+![Test Passing Travis CI](https://travis-ci.org/elenatorro/xAPI-Validator-JS.svg?branch=master)
 
 A stand-alone Javascript validator for Experience API (xAPI) statements.
 
@@ -22,7 +23,7 @@ The input `statement` may either be JSON string of an xAPI statement or a Javasc
                     "actor": {
                         "mbox": "mailto:bob@example.com"
                     },
-                    "verb": { 
+                    "verb": {
                         "id": "http://adlnet.gov/expapi/verbs/created",
                         "display" :{"en-US": "created"}
                     },
@@ -59,7 +60,7 @@ The produced report object contains three key properties: a collection of any `e
                         "actor": {
                             "mbox": "mailto:charles@example.com"
                         },
-                        "verb": { 
+                        "verb": {
                             "id": "http://adlnet.gov/expapi/verbs/created",
                             "display" :{"en-US": "created"}
                         },
